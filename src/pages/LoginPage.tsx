@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../auth/AuthProvider';
 import { client } from '../lib/api/client';
@@ -13,7 +13,6 @@ const schema = z.object({
   email: z.string().email('Enter a valid email'),
   password: z.string().min(1, 'Password is required'),
 });
-
 type Fields = z.infer<typeof schema>;
 
 interface LoginResponse {
@@ -25,7 +24,9 @@ export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? '/dashboard';
+  const oauthError = searchParams.get('error') === 'oauth_failed';
 
   const [apiError, setApiError] = useState('');
 
@@ -61,36 +62,40 @@ export default function LoginPage() {
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit(onSubmit)} noValidate>
+          {oauthError && (
+            <div className="alert alert-error" role="alert">
+              Google sign-in failed. Please try again or use email.
+            </div>
+          )}
           {apiError && <div className="alert alert-error" role="alert">{apiError}</div>}
 
           <div className="form-group">
             <label className="form-label" htmlFor="email">Email address</label>
             <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              className="form-input"
-              placeholder="you@company.com"
+              id="email" type="email" autoComplete="email"
+              className="form-input" placeholder="you@company.com"
               {...register('email')}
             />
             {errors.email && <span className="form-error">{errors.email.message}</span>}
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="password">Password</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <label className="form-label" htmlFor="password" style={{ margin: 0 }}>Password</label>
+              <Link to="/forgot-password" style={{ fontSize: '0.8rem', color: 'var(--accent)' }}>
+                Forgot password?
+              </Link>
+            </div>
             <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              className="form-input"
-              placeholder="••••••••"
+              id="password" type="password" autoComplete="current-password"
+              className="form-input" placeholder="••••••••"
               {...register('password')}
             />
             {errors.password && <span className="form-error">{errors.password.message}</span>}
           </div>
 
-          <button type="submit" className="btn btn-primary btn-lg w-full" disabled={isSubmitting}
-            style={{ justifyContent: 'center' }}>
+          <button type="submit" className="btn btn-primary btn-lg w-full"
+            disabled={isSubmitting} style={{ justifyContent: 'center' }}>
             {isSubmitting ? <><span className="spinner spinner-sm" /> Signing in…</> : 'Sign in'}
           </button>
 
@@ -103,8 +108,7 @@ export default function LoginPage() {
         </form>
 
         <div className="auth-form-footer" style={{ marginTop: 'auto', paddingTop: 24 }}>
-          Don't have an account?{' '}
-          <Link to="/register">Create one</Link>
+          Don't have an account? <Link to="/register">Create one</Link>
         </div>
       </div>
 
