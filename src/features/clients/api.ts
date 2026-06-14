@@ -16,8 +16,12 @@ export function useClients(filters: ClientFilters = {}) {
   return useQuery({
     queryKey: [...CLIENTS_KEY, filters],
     queryFn: async () => {
-      const { data } = await client.get<PaginatedClients>('/clients', { params: filters });
-      return data;
+      const { data } = await client.get<{
+        success: boolean;
+        data: Client[];
+        pagination: PaginatedClients['pagination'];
+      }>('/clients', { params: filters });
+      return { data: data.data, pagination: data.pagination };
     },
     staleTime: 5 * 60 * 1000,
   });

@@ -9,7 +9,7 @@ import type { Client } from '../types';
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Valid email required'),
+  email: z.string().email('Valid email required').optional().or(z.literal('')),
   company: z.string().optional(),
   phone: z.string().optional(),
   address: z.string().optional(),
