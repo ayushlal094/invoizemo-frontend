@@ -14,7 +14,7 @@ export interface Client {
 
 export interface CreateClientPayload {
   name: string;
-  email: string;
+  email?: string;  // ← make it optional
   company?: string;
   phone?: string;
   address?: string;
