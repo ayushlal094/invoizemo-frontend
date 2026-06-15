@@ -51,11 +51,15 @@ export function ClientFormModal({ client, onClose }: Props) {
 
   const onSubmit = async (values: Fields) => {
     try {
+      const payload = {
+        ...values,
+        email: values.email || undefined,
+      };
       if (isEdit) {
-        await updateMutation.mutateAsync(values);
+        await updateMutation.mutateAsync(payload);
         toast('Client updated');
       } else {
-        await createMutation.mutateAsync(values);
+        await createMutation.mutateAsync(payload);
         toast('Client added');
       }
       onClose();
