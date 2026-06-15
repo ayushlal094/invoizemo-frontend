@@ -42,7 +42,7 @@ export default function InvoiceFormPage() {
   const { toast } = useToast();
 
   const { data: existing } = useInvoice(id ?? '');
-  const { data: clientsData } = useClients({ limit: 200 });
+  const { data: clientsData } = useClients({ limit: 100 });
   const clients = clientsData?.data ?? [];
 
   const createMutation = useCreateInvoice();
